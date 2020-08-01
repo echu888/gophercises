@@ -1,0 +1,30 @@
+<html>
+	<head>
+		<style>
+body{background-color: #222; font-family:Helvetica; font-size:1.3em; padding:2em 8em 2em 8em; }
+h1  {color: #449;                                      }
+h2  {color: #669;                                      }
+p   {color: white;                                     }
+ul  {list-style-type: none;                            }
+li  {color: #999; font-size:1.3em; font-style: italic; margin: 1em 0; }
+a,a:visited {color: #559;                              }
+		</style>
+
+	</head>
+
+	<body>
+
+		<h1>{{.Title}}</h1>
+		<p>{{.Story}}</p>
+		{{if .Options}}
+		<h2>So, what do you wanna do?</h2>
+		<ul>
+			{{range .Options}}
+			<li >{{.Text}} <br/> <strong>I choose <a href="/{{.Arc}}">{{.Arc}}</a></strong> </li>
+			{{end}}
+		</ul>
+		{{else}}
+		<a href="/">Start over?</a>
+		{{end}}
+	</body>
+</html>
