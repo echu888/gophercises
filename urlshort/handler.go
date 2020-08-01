@@ -1,3 +1,13 @@
+// implementation of Gophercise Exercise #2 
+//   https://github.com/gophercises/urlshort/
+//   
+// primary features:
+//	create http handlers
+//	use maps
+//	parse YAML
+
+// use package main for easy testing 
+//package urlshort
 package main
 
 import (
