@@ -1,6 +1,6 @@
-// implementation of Gophercise Exercise #1 
+// implementation of Gophercise Exercise #1
 //   https://github.com/gophercises/quiz/
-//   
+//
 // primary features:
 //	read from CSV file
 //	channel timer
@@ -13,25 +13,23 @@ import (
 	"encoding/csv"
 	"flag"
 	"fmt"
-	"os"
 	"io"
 	"log"
+	"os"
 	"time"
 )
 
 type Problem struct {
-	Problem string
+	Problem        string
 	ExpectedAnswer string
-	ActualAnswer string
-	Answered bool
-	Correct bool
+	ActualAnswer   string
+	Answered       bool
+	Correct        bool
 }
-
-
 
 func readFile(filename string) []Problem {
 	file, _ := os.Open(filename)
-	reader  := csv.NewReader(bufio.NewReader(file))
+	reader := csv.NewReader(bufio.NewReader(file))
 	var problems []Problem
 	for {
 		line, error := reader.Read()
@@ -41,10 +39,10 @@ func readFile(filename string) []Problem {
 			log.Fatal(error)
 		}
 		problems = append(problems, Problem{
-			Problem:         line[0],
-			ExpectedAnswer:  line[1],
-			Answered:        false,
-			Correct:         false,
+			Problem:        line[0],
+			ExpectedAnswer: line[1],
+			Answered:       false,
+			Correct:        false,
 		})
 	}
 	return problems
@@ -52,17 +50,16 @@ func readFile(filename string) []Problem {
 }
 
 func askQuestions(problems []Problem) {
-	for i:=0; i < len(problems); i++ {
+	for i := 0; i < len(problems); i++ {
 		fmt.Printf("Question #%d: %s = ", i, problems[i].Problem)
 		var input string
 		fmt.Scanln(&input)
 		if input != "" {
-			problems[i].Answered     = true
+			problems[i].Answered = true
 			problems[i].ActualAnswer = input
 		}
-		problems[i].Correct      = (problems[i].ActualAnswer == problems[i].ExpectedAnswer)
+		problems[i].Correct = (problems[i].ActualAnswer == problems[i].ExpectedAnswer)
 	}
-
 
 }
 
@@ -89,19 +86,17 @@ func printResults(problems []Problem) {
 	fmt.Println("Quiz score:")
 	fmt.Printf(" -- Answered %d out of %d total questions\n", totalAnswered, len(problems))
 	fmt.Printf(" -- Correct %d\n", totalCorrect)
-	fmt.Printf(" -- Incorrect %d\n", totalAnswered - totalCorrect)
+	fmt.Printf(" -- Incorrect %d\n", totalAnswered-totalCorrect)
 }
-
 
 func main() {
 	const PROBLEMS_FILENAME = "problems.csv"
 	const TIMES_UP = 30
 	//var programArgs = os.Args[1:]
 
-	filenamePtr  := flag.String("csv", PROBLEMS_FILENAME, "CSV file with problems")
+	filenamePtr := flag.String("csv", PROBLEMS_FILENAME, "CSV file with problems")
 	timeLimitPtr := flag.Int("limit", TIMES_UP, "time limit in seconds")
 	flag.Parse()
-
 
 	fmt.Println()
 	fmt.Println("Welcome to quiz!")
@@ -112,7 +107,6 @@ func main() {
 	fmt.Println("Press enter when you're ready to start...")
 	fmt.Scanln()
 
-
 	channel := make(chan int)
 	go func() {
 		askQuestions(problems[:])
@@ -120,14 +114,12 @@ func main() {
 	}()
 
 	select {
-		case <-channel:
-			printResults(problems)
+	case <-channel:
+		printResults(problems)
 
-		case <-time.After(time.Duration(*timeLimitPtr) * time.Second):
-			fmt.Println("Times up!")
-			printResults(problems)
+	case <-time.After(time.Duration(*timeLimitPtr) * time.Second):
+		fmt.Println("Times up!")
+		printResults(problems)
 	}
 
 }
-
-

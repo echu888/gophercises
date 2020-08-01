@@ -1,12 +1,12 @@
-// implementation of Gophercise Exercise #2 
+// implementation of Gophercise Exercise #2
 //   https://github.com/gophercises/urlshort/
-//   
+//
 // primary features:
 //	create http handlers
 //	use maps
 //	parse YAML
 
-// use package main for easy testing 
+// use package main for easy testing
 //package urlshort
 package main
 
@@ -17,7 +17,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// RedirectHandler uses a simple HTTP redirect, along with 
+// RedirectHandler uses a simple HTTP redirect, along with
 // an HTTP 301 (Permanently Moved) status
 func RedirectHandler(w http.ResponseWriter, r *http.Request, newUrl string) {
 	http.Redirect(w, r, newUrl, http.StatusMovedPermanently)
@@ -32,21 +32,20 @@ func RedirectHandler(w http.ResponseWriter, r *http.Request, newUrl string) {
 func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if fullurl, ok := pathsToUrls[r.URL.Path]; ok {
-			RedirectHandler(w,r,fullurl)
+			RedirectHandler(w, r, fullurl)
 		} else {
-			fallback.ServeHTTP(w,r)
+			fallback.ServeHTTP(w, r)
 		}
-        }
+	}
 }
 
 // Converted from YAML into golang struct, using the
-// "YAML to go" service available here: 
+// "YAML to go" service available here:
 // https://yaml.to-go.online/
 type YamlEntries []struct {
 	Path string `yaml:"path"`
 	URL  string `yaml:"url"`
 }
-
 
 // YAMLHandler will parse the provided YAML and then return
 // an http.HandlerFunc (which also implements http.Handler)
@@ -71,9 +70,9 @@ func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 	var yamlEntries YamlEntries
 	err := yaml.Unmarshal([]byte(yml), &yamlEntries)
 	if err == nil {
-		for _,shortcut := range yamlEntries {
-			shortcuts[shortcut.Path]=shortcut.URL
+		for _, shortcut := range yamlEntries {
+			shortcuts[shortcut.Path] = shortcut.URL
 		}
 	}
-        return MapHandler(shortcuts, fallback), err
+	return MapHandler(shortcuts, fallback), err
 }
