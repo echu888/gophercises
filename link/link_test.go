@@ -7,9 +7,21 @@ import (
 	"testing"
 )
 
+
+func testFindLinksFunc(testString string, expectedLinks Links) func(*testing.T) {
+	return func(t *testing.T) {
+		reader := strings.NewReader(testString)
+		document, _ := html.Parse(reader)
+		links := findLinks(document)
+		if !reflect.DeepEqual(links, expectedLinks) {
+			t.Errorf("\n  Actual: %v\nExpected: %v\n", links, expectedLinks)
+		}
+	}
+}
+
 func TestFindLinks(t *testing.T) {
 
-//--------------------------------------------------------------------
+	//--------------------------------------------------------------------
 	scenario1 := `
 <html>
 <body>
@@ -24,7 +36,7 @@ func TestFindLinks(t *testing.T) {
 
 	t.Run("scenario 1", testFindLinksFunc(scenario1, links1))
 
-//--------------------------------------------------------------------
+	//--------------------------------------------------------------------
 	scenario2 := `
 <html>
 <head>
@@ -51,7 +63,7 @@ func TestFindLinks(t *testing.T) {
 
 	t.Run("scenario 2", testFindLinksFunc(scenario2, links2))
 
-//--------------------------------------------------------------------
+	//--------------------------------------------------------------------
 	scenario3 := `
 <!DOCTYPE html>
 <!--[if lt IE 7]> <html class="ie ie6 lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
@@ -124,7 +136,7 @@ func TestFindLinks(t *testing.T) {
 
 	t.Run("scenario 3", testFindLinksFunc(scenario3, links3))
 
-//--------------------------------------------------------------------
+	//--------------------------------------------------------------------
 	scenario4 := `
 <html>
 <body>
@@ -138,13 +150,3 @@ func TestFindLinks(t *testing.T) {
 	t.Run("scenario 4", testFindLinksFunc(scenario4, links4))
 }
 
-func testFindLinksFunc(testString string, expectedLinks Links) func(*testing.T) {
-	return func(t *testing.T) {
-		reader := strings.NewReader(testString)
-		document, _ := html.Parse(reader)
-		links := findLinks(document)
-		if !reflect.DeepEqual(links, expectedLinks) {
-			t.Errorf("\n  Actual: %v\nExpected: %v\n", links, expectedLinks)
-		}
-	}
-}

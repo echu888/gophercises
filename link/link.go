@@ -7,14 +7,14 @@
 package main
 
 import (
-	"fmt"
 	"flag"
+	"fmt"
 	"os"
 	//"io"
 	//"bytes"
-	"strings"
-	"log"
 	"golang.org/x/net/html"
+	"log"
+	"strings"
 )
 
 //const (
@@ -50,81 +50,78 @@ type Links []Link
 func getContent(node *html.Node) string {
 	var content string
 
-        // ignores <all_elements/> and <!-- all comments -->
+	// ignores <all_elements/> and <!-- all comments -->
 	if node.Type != html.ElementNode &&
-	   node.Type != html.CommentNode {
-		content= node.Data
+		node.Type != html.CommentNode {
+		content = node.Data
 	}
 
 	//log.Println("getContent:", content)
 	var postcontent string
 
 	// recursively process all content available in this node
-        for child := node.FirstChild; child != nil; child = child.NextSibling {
-	    //log.Printf("-- CHILD OF %s\n", node.Data)
-	     postcontent=postcontent + getContent(child)
-        }
+	for child := node.FirstChild; child != nil; child = child.NextSibling {
+		//log.Printf("-- CHILD OF %s\n", node.Data)
+		postcontent = postcontent + getContent(child)
+	}
 	return content + postcontent
 }
 
 func findLinks(root *html.Node) Links {
-    links:= []Link{}
-    var findLinkFunc func(*html.Node)
-    findLinkFunc  = func(node *html.Node) {
-        //if node.Type == html.ElementNode {
-	//log.Printf("node: [%d] [%s]\n", node.Type, node.Data)
-        //}
-        if node.Type == html.ElementNode && node.Data == "a" {
-            for _, a := range node.Attr {
-                //log.Println(" -- " , a)
-                if a.Key == "href" {
-		    var link = Link{a.Val,  strings.TrimSpace(getContent(node))}
-		    //log.Println(node)
-		    links=append(links, link)
-                }
-            }
-        }
-        for child := node.FirstChild; child != nil; child = child.NextSibling {
-	    //log.Printf("-- CHILD OF %s\n", node.Data)
-            findLinkFunc(child)
-        }
-    }
-    findLinkFunc(root)
-    return links
+	links := []Link{}
+	var findLinkFunc func(*html.Node)
+	findLinkFunc = func(node *html.Node) {
+		//if node.Type == html.ElementNode {
+		//log.Printf("node: [%d] [%s]\n", node.Type, node.Data)
+		//}
+		if node.Type == html.ElementNode && node.Data == "a" {
+			for _, a := range node.Attr {
+				//log.Println(" -- " , a)
+				if a.Key == "href" {
+					var link = Link{a.Val, strings.TrimSpace(getContent(node))}
+					//log.Println(node)
+					links = append(links, link)
+				}
+			}
+		}
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			//log.Printf("-- CHILD OF %s\n", node.Data)
+			findLinkFunc(child)
+		}
+	}
+	findLinkFunc(root)
+	return links
 }
 
 func checkErrors(err error) {
-    if err != nil {
-	log.Fatal(err)
-    }
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func loadFile(filename string) *html.Node {
-    fmt.Println("Loading file:", filename)
-    file, err := os.Open(filename)
-    checkErrors(err)
+	fmt.Println("Loading file:", filename)
+	file, err := os.Open(filename)
+	checkErrors(err)
 
-    doc,err:=html.Parse(file)
-    checkErrors(err)
+	doc, err := html.Parse(file)
+	checkErrors(err)
 
-    return doc
+	return doc
 }
 
 func displayLinks(links Links) {
-    fmt.Println("Links found:")
-    for _,link := range links {
-	    fmt.Printf("Link: [%s] %s\n", link.Href, link.Text)
-    }
+	fmt.Println("Links found:")
+	for _, link := range links {
+		fmt.Printf("Link: [%s] %s\n", link.Href, link.Text)
+	}
 }
 
 func main() {
-    filenamePtr := flag.String("f", "example.html", "html file to parse for links")
-    flag.Parse()
+	filenamePtr := flag.String("f", "example.html", "html file to parse for links")
+	flag.Parse()
 
-    doc:=loadFile(*filenamePtr)
-    links:= findLinks(doc)
-    displayLinks(links)
+	doc := loadFile(*filenamePtr)
+	links := findLinks(doc)
+	displayLinks(links)
 }
-
-
-
